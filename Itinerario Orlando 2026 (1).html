@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Itinerario Orlando 2026</title>
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --card-bg: #FFFFFF;
+    --text-main: #1D1D1F;
+    --text-muted: #86868B;
+    --border: #E5E5EA;
+    --accent-blue: #0071E3;
+    --disney: #0066CC; --disney-bg: #EBF5FF;
+    --univ: #6E39C4; --univ-bg: #F3EAFD;
+    --party: #BF4800; --party-bg: #FFF1E5;
+    --nasa: #1D1D1F; --nasa-bg: #F0F0F2;
+    --green: #248A3D; --green-bg: #E9F9EC;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    padding: 28px 16px 56px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header { margin-bottom: 22px; padding: 0 4px; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .eyebrow { font-size: 13px; color: var(--accent-blue); font-weight: 600; margin-bottom: 4px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
+
+  .theme-toggle {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    margin-top: 2px;
+  }
+  .theme-toggle .icon {
+    position: absolute;
+    font-size: 18px;
+    line-height: 1;
+    transition: opacity 0.15s ease;
+  }
+  .theme-toggle .icon-moon { opacity: 0; }
+  :root[data-theme="dark"] .theme-toggle .icon-sun { opacity: 0; }
+  :root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; }
+
+  /* Days as glanceable cards */
+  .day-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .day-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .day-name { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+  .park-name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; margin-top: 2px; }
+  .hotel { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .b-disney { background: var(--disney-bg); color: var(--disney); }
+  .b-univ { background: var(--univ-bg); color: var(--univ); }
+  .b-party { background: var(--party-bg); color: var(--party); }
+  .b-nasa { background: var(--nasa-bg); color: var(--nasa); }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .t-step { text-align: left; }
+  .t-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .t-time { font-size: 16px; font-weight: 700; margin-top: 2px; }
+  .t-time.blue { color: var(--accent-blue); }
+  .t-note {
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-top: 3px;
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  .n-epa { background: var(--green-bg); color: var(--green); }
+  .n-none { background: #F0F0F2; color: var(--text-muted); }
+
+  .note-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-top: 20px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .note-box strong.title { display: block; font-size: 14px; margin-bottom: 10px; }
+  .note-box p + p { margin-top: 8px; }
+  .note-box b { font-weight: 700; }
+
+  /* Mobile: stack timeline into two columns for legibility */
+  @media (max-width: 600px) {
+    h1 { font-size: 22px; }
+    .day-card { padding: 14px 14px; }
+    .timeline { grid-template-columns: repeat(2, 1fr); row-gap: 12px; }
+    .park-name { font-size: 16px; }
+  }
+
+  /* Dark mode: only via explicit toggle, default is light */
+  :root[data-theme="dark"] {
+    --bg: #000000;
+    --card-bg: #1C1C1E;
+    --text-main: #F5F5F7;
+    --text-muted: #98989D;
+    --border: #2C2C2E;
+    --disney-bg: #0A2540; --disney: #4DA3FF;
+    --univ-bg: #2A1B3D; --univ: #B58EE8;
+    --party-bg: #3A2312; --party: #FF9F5A;
+    --nasa-bg: #2C2C2E; --nasa: #F5F5F7;
+    --green-bg: #123018; --green: #4CD263;
+  }
+  body { background: var(--bg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-row">
+      <div>
+        <div class="eyebrow">Orlando · Octubre 2026</div>
+        <h1>Cronograma de parques</h1>
+        <p class="subtitle">Horarios según la operativa oficial de Early Entry en octubre</p>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+        <span class="icon icon-sun">☀️</span>
+        <span class="icon icon-moon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- DISNEY -->
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Martes 13</div>
+        <div class="park-name">EPCOT</div>
+        <div class="hotel">All-Star Movies</div>
+      </div>
+      <span class="badge b-disney">Disney</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:30</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:15</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">08:30</div><span class="t-note n-epa">Early Entry 30m</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">21:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Miércoles 14</div>
+        <div class="park-name">Magic Kingdom</div>
+        <div class="hotel">All-Star Movies</div>
+      </div>
+      <span class="badge b-disney">Disney</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:00</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:00</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">08:30</div><span class="t-note n-epa">Early Entry 30m</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">22:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Jueves 15</div>
+        <div class="park-name">MNSSHP (Halloween)</div>
+        <div class="hotel">All-Star Movies</div>
+      </div>
+      <span class="badge b-party">Evento</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">15:00</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">15:45</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">16:00</div><span class="t-note n-epa">Ingreso exclusivo</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">00:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Viernes 16</div>
+        <div class="park-name">Hollywood Studios</div>
+        <div class="hotel">All-Star Movies</div>
+      </div>
+      <span class="badge b-disney">Disney</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:30</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:15</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">08:30</div><span class="t-note n-epa">Early Entry 30m</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">21:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Sábado 17</div>
+        <div class="park-name">Animal Kingdom</div>
+        <div class="hotel">All-Star Movies</div>
+      </div>
+      <span class="badge b-disney">Disney</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">06:30</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">07:15</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">07:30</div><span class="t-note n-epa">Early Entry 30m</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">18:00</div></div>
+    </div>
+  </div>
+
+  <!-- NASA -->
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Domingo 18</div>
+        <div class="park-name">Kennedy Space Center</div>
+        <div class="hotel">Check-out All-Star / Check-in Terra Luna</div>
+      </div>
+      <span class="badge b-nasa">NASA</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:15</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:45</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">09:00</div><span class="t-note n-none">Apertura general</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">17:00</div></div>
+    </div>
+  </div>
+
+  <!-- UNIVERSAL -->
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Lunes 19</div>
+        <div class="park-name">Epic Universe</div>
+        <div class="hotel">Terra Luna</div>
+      </div>
+      <span class="badge b-univ">Universal</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:15</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">07:30</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">08:00</div><span class="t-note n-epa">Early Entry 1h</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">20:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Martes 20</div>
+        <div class="park-name">Universal Studios</div>
+        <div class="hotel">Terra Luna</div>
+      </div>
+      <span class="badge b-univ">Universal</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:45</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:30</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">09:00</div><span class="t-note n-none">Sin Early Entry en oct.</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">19:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Miércoles 21</div>
+        <div class="park-name">Halloween Horror Nights</div>
+        <div class="hotel">Terra Luna</div>
+      </div>
+      <span class="badge b-party">Evento</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">16:45</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">17:30</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">18:30</div><span class="t-note n-epa">Fila acceso 17:30</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">02:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Jueves 22</div>
+        <div class="park-name">Islands of Adventure</div>
+        <div class="hotel">Terra Luna</div>
+      </div>
+      <span class="badge b-univ">Universal</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">07:00</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">07:30</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">08:00</div><span class="t-note n-epa">Early Entry 1h</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">20:00</div></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-top">
+      <div>
+        <div class="day-name">Viernes 23</div>
+        <div class="park-name">Volcano Bay</div>
+        <div class="hotel">Terra Luna</div>
+      </div>
+      <span class="badge b-univ">Universal</span>
+    </div>
+    <div class="timeline">
+      <div class="t-step"><div class="t-label">Salir hotel</div><div class="t-time blue">08:15</div></div>
+      <div class="t-step"><div class="t-label">Molinete</div><div class="t-time">08:45</div></div>
+      <div class="t-step"><div class="t-label">Apertura</div><div class="t-time">09:00</div><span class="t-note n-epa">Early Entry acuático</span></div>
+      <div class="t-step"><div class="t-label">Cierre</div><div class="t-time">17:00</div></div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong class="title">Diferencia clave en Universal durante octubre</strong>
+    <p><b>Islands of Adventure:</b> sí tiene Early Park Admission (08:00). Al estar en Terra Luna, el bus a CityWalk suma 20 minutos más la caminata; por eso conviene salir a las 07:00 para aprovecharlo.</p>
+    <p><b>Universal Studios:</b> no tiene Early Park Admission en octubre por el armado de Halloween. Abre a las 09:00 para todos, así que salir a las 07:45 alcanza para llegar a los molinetes a las 08:30.</p>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var saved = null;
+    try { saved = localStorage.getItem('itinerario-theme'); } catch (e) {}
+    if (saved === 'dark' || saved === 'light') {
+      root.setAttribute('data-theme', saved);
+    }
+    function syncButton() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+      btn.setAttribute('aria-label', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    }
+    syncButton();
+    btn.addEventListener('click', function () {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('itinerario-theme', next); } catch (e) {}
+      syncButton();
+    });
+  })();
+</script>
+</body>
+</html>
